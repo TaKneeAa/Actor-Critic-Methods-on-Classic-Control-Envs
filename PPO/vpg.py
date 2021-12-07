@@ -307,10 +307,9 @@ def run_vpg(args):
     model_name = f'{args.product_terms_type}_{args.activation}_{args.num_layers}_{args.hidden_dim}'
 
     args.normalize_gae = args.normalize_gae.lower() == 'true'
-    wandb.init(project="Actor-Critics Methods for Continous Action spaces",  name=f"{environment_name}-{model_name}")
-    # environment_name = 'MountainCarContinuous-v0'
+    wandb.init(project="Actor-Critics Methods for Continous Action spaces",  name=f"{args.env}-{model_name}")
     config = wandb.config
-    config.environment_name = args.environment_name
+    config.environment_name = args.env
     config.gamma = args.gamma
     config.hidden_dim = args.hidden_dim
     config.horizon = args.horizon
@@ -323,7 +322,7 @@ def run_vpg(args):
     config.activation = args.activation
     config.normalize_gae = args.normalize_gae
 
-    mdp = MDP(environment_name = args.environment_name, gamma = args.gamma, hidden_dim = args.hidden_dim, horizon = args.horizon, activation = args.activation, num_layers = args.num_layers)
+    mdp = MDP(environment_name = args.env, gamma = args.gamma, hidden_dim = args.hidden_dim, horizon = args.horizon, activation = args.activation, num_layers = args.num_layers)
     mdp.run_vanilla_policy_gradients(num_iters = args.num_iters, num_value_optim_steps = args.num_value_optim_steps, product_terms_type = args.product_terms_type, model_name = model_name, value_fn_lr = args.value_fn_lr, policy_lr = args.policy_lr, normalize_gae = args.normalize_gae)
 
 def test_model_load():
@@ -354,12 +353,12 @@ if __name__ == '__main__':
     parser.add_argument('--env', type=str, default='Pendulum-v0')
     parser.add_argument('--gamma', type=float, default=0.99)
     parser.add_argument('--hidden_dim', type=int, default=32)
-    parser.add_argument('--horizon', type=int, default=None)
+    parser.add_argument('--horizon', type=int, default=0)
     parser.add_argument('--num_value_optim_steps', type=int, default=80)
     parser.add_argument('--product_terms_type', type=str, default='discounted_returns')
     parser.add_argument('--run_num', type=int, default=1)
-    parser.add_argument('--value_fn_lr', type=int, default=1e-3)
-    parser.add_argument('--policy_lr', type=int, default=1e-2)
+    parser.add_argument('--value_fn_lr', type=float, default=1e-3)
+    parser.add_argument('--policy_lr', type=float, default=1e-2)
     parser.add_argument('--num_layers', type=int, default=2)
     parser.add_argument('--activation', type=str, default='tanh')
     parser.add_argument('--normalize_gae', type=str, default='True')
