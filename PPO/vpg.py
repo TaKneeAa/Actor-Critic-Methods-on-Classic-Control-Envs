@@ -382,15 +382,17 @@ class MDP():
             discounted_returns = np.asarray(discounted_returns)
 
 
-            if product_terms_type == 'gae' and normalize_gae:
-                product_terms = (product_terms - np.mean(product_terms)) / np.std(product_terms)
-            else:
-                product_terms = product_terms - np.mean(product_terms)
+            if product_terms_type == 'gae':
+                if normalize_gae:
+                    product_terms = (product_terms - np.mean(product_terms)) / np.std(product_terms)
+                else:
+                    product_terms = product_terms - np.mean(product_terms)
 
             if self.policy_is_discrete:
                 actions = torch.as_tensor(actions, dtype=torch.int32)
             else:
                 actions = torch.as_tensor(actions, dtype=torch.float32)
+                
             observations = torch.as_tensor(observations, dtype=torch.float32)
             product_terms = torch.as_tensor(product_terms, dtype=torch.float32)
             discounted_returns = torch.as_tensor(discounted_returns, dtype=torch.float32)
