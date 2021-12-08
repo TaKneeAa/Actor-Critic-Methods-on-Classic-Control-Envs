@@ -127,13 +127,12 @@ class MDP():
         """
         episode_len = len(episode_stats['observations'])
 
-        if product_terms_type == 'discounted_returns' or product_terms_type == 'td0_advantage':
-            episode_stats['discounted_returns']  = [0]* episode_len
-            for i in reversed(range(len(episode_stats['observations']))):
-                if i == episode_len -1:
-                    episode_stats['discounted_returns'][i] = episode_stats['rewards'][i]
-                else:
-                    episode_stats['discounted_returns'][i] = episode_stats['rewards'][i] + self.gamma * episode_stats['discounted_returns'][i+1]
+        episode_stats['discounted_returns']  = [0]* episode_len
+        for i in reversed(range(len(episode_stats['observations']))):
+            if i == episode_len -1:
+                episode_stats['discounted_returns'][i] = episode_stats['rewards'][i]
+            else:
+                episode_stats['discounted_returns'][i] = episode_stats['rewards'][i] + self.gamma * episode_stats['discounted_returns'][i+1]
 
         if product_terms_type == 'transition_rewards':
             episode_stats['product_terms']  = [sum(episode_stats['rewards'])]* episode_len
@@ -255,8 +254,8 @@ class MDP():
             if product_terms_type == 'gae':
                 if normalize_gae:
                     product_terms = (product_terms - np.mean(product_terms)) / np.std(product_terms)
-                else:
-                    product_terms = product_terms - np.mean(product_terms)
+                # else:
+                #     product_terms = product_terms - np.mean(product_terms)
 
             if self.policy_is_discrete:
                 actions = torch.as_tensor(actions, dtype=torch.int32)
@@ -321,6 +320,7 @@ def run_vpg(args):
     config.num_layers = args.num_layers
     config.activation = args.activation
     config.normalize_gae = args.normalize_gae
+    config.comments = args.comments
 
     mdp = MDP(environment_name = args.env, gamma = args.gamma, hidden_dim = args.hidden_dim, horizon = args.horizon, activation = args.activation, num_layers = args.num_layers)
     mdp.run_vanilla_policy_gradients(num_iters = args.num_iters, num_value_optim_steps = args.num_value_optim_steps, product_terms_type = args.product_terms_type, model_name = model_name, value_fn_lr = args.value_fn_lr, policy_lr = args.policy_lr, normalize_gae = args.normalize_gae)
@@ -362,5 +362,6 @@ if __name__ == '__main__':
     parser.add_argument('--num_layers', type=int, default=2)
     parser.add_argument('--activation', type=str, default='tanh')
     parser.add_argument('--normalize_gae', type=str, default='True')
+    parser.add_argument('--comments', type=str, default = '')
     args = parser.parse_args()
     run_vpg(args)
